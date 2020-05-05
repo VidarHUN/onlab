@@ -301,6 +301,73 @@ forgalmat vagy, hogy honnét kapja, mert ez mind a két esetben a sidecar lesz.
 
 A kép forrása és további érdekes információk megtalálhatóak még a Red Hat ezen 
 cikkében ~\cite{redhat}
+
+\subsubsection{Envoy}
+Ez egy L7 (alkalmazás) rétegen működő proxy és kommunikációs csatorna 
+arra tervezve, hogy nagy szolgáltatás alapú architektúrákat lehessen létrehozni 
+úgy, hogy a szolgáltatások számára a hálózat átlátszó legyen.  
+A proxy egy olyan szerver, amely hálózati forgalmat irányítja. Az előzőleg 
+említett funkcióját úgy sikerül ellátnia, hogy a szolgáltatáshálók 
+részben lévő szolgáltatásoknál az Envoy lesz maga a sidecar, így a 
+mikroszolgáltatásnak elég mindig csak a localhost-ra küldeni és onnét 
+fogadni adatot. 
+
+Képes L3/L4 (hálózati/szállítási) réteg szűrőket is alkalmazni, amivel a 
+különböző protokollokat, mint a TCP (Transmission Control Protocol) és az 
+UDP. 
+
+Ezen felül rendelkezik még olyan funkciókkal, amelyek segítségével 
+megvalósítható perem proxy-ként és belső proxy-ként is, felügyelhető, 
+és HTTP (HyperText Transfer Protocol) alapú szűrést is tudunk használni. 
+
+További információk ezen az oldalon találhatóak ~\cite{envoydoc}
+
+\subsubsection{További technológiák, amelyek szükségesek}
+\textbf{UDP - User Datagram Protocol} \\
+Az UDP egyszerű kapcsolatmentes összeköttetést hoz létre 2 eszköz 
+között, így nincs kapcsolat ellenőrzés, mint a TCP-nél ezért sokkal 
+gyorsabban felállítható a kapcsolat eszközök között. Viszont nincs 
+garancia arra, hogy a csomagok megérkeznek, sorrendben érkeznek-e 
+vagy, hogy duplikált csomagok jönnek át a csatornán. Ezért olyan 
+szolgáltatásokhoz érdemes használni, ahol nem probléma, ha egy 
+csomag többször jön vagy hiányoznak csomagok. Ilyenek például a 
+telekommunikáció és az élő közvetítések is. További információk 
+találhatóak ezen az oldalon ~\cite{udpwiki} \\
+
+\textbf{UDS - Unix Domain Socket} \\ 
+Arra használatos, hogy a folyamatok úgy tudjanak egymással kommunikálni, 
+hogy az minél jobb legyen. A Unix Domain Socket lehet névtelen, vagy 
+hozzárendelve egy fájlrendszerben létrehozott elérési útvonalhoz. 
+További információkat lehet találni ezen az oldalon ~\cite{udsman} \\
+
+\textbf{iPerf} \\ 
+Az iPerf egy olyan eszköz, amellyel lehet mérni a maximálisan elérhető 
+sávszéllességet IP hálózatokban. Támogatja a különböző protokollokat, így 
+használható TCP és UDP mérésre is, de ezen felül lehet még sok máshoz is használni. 
+De betudunk állítani olyanokat is, hogy adott ideig és időközökkel küldjön 
+általunk megadott csomagmérettel és küldési sebességgel, szóval egy 
+nagyon kis hasznos eszköz. 
+
+Minden ilyen teszt végén kapunk egy jelentést arról, hogy milyen sávszélességgel 
+érkeztek meg a csomagokat, ebből mennyi veszett el és még más paramétereket is 
+annak tükrében, hogy milyen részletes jelentések szeretnénk látni. 
+
+A használata úgy néz, hogy létre kell hozni egy úgynevezett iPerf szervert, 
+amihez beérkeznek a csomagok. Ez lehet bárhol, amit az hálózaton keresztül elérünk. 
+Ezen felül még létre kell hozni egy iPerf klienst is, aki az általunk 
+specifikált módon fog csomagokat küldeni a szerverre.
+
+További érdekes információk találhatóak az weboldalán ~\cite{iperf} \\
+
+\textbf{socat} \\
+A Socat egy parancssori alapú segédprogram, amely két kétirányú bájt-folyam 
+hoz létre és adatot továbbít közöttük. Mivel az adatfolyamok különféle típusú 
+adatgyűjtőkből és forrásokból állíthatóak össze, és mivel sok címbeállítási 
+lehetőséget lehet alkalmazni az adatfolyamokra, a socat felhasználható 
+többféle célra.
+
+Ezt fogjuk arra használni, hogy UDS csomagokat alakítsunk át UDP csomagokká. 
+További információk találhatóak a következő oldalon ~\cite{socat}
 %Amikor a tágabb tudományos vagy műszaki környezetről beszélünk, akkor
 %azt értjük alatta, hogy ,,művelt laikus'' -- alapesetben ennek
 %tekinthető a tárgyfelelős -- megtalálja azokat a kapcsolódási
@@ -343,13 +410,18 @@ cikkében ~\cite{redhat}
 
 \subsection{A munka állapota, készültségi foka a félév elején}
 \label{sec:munka-allap-kesz}
-
-Ebben a részben lehet megadni a korábbi félévekben elvégzett munkát
-is.  Így világosan elkülöníthető az aktuális félévtől.  Nem kell
-hosszasan írni, de ne legyen felsorolás sem.  Egy bekezdésben kellene
-itt leírni, hogy foglalkoztál-e már ezzel a témával, a tanszéken
-dolgozott-e már valaki rajta.  Írd le azt is, hogy mit kaptál kézhez
-hozzá segítségként.
+A témalaboratórium alkalmával már foglalkoztam a szolgáltatáshálók 
+megismerésével és használatával, ahol az Isio és az SMI (Service Mesh 
+Interface) különböző aspektusait hasonlítottam össze. Ennek során 
+mélyebb rálátást sikerült nyernem a Kubernetes használatára és arra, 
+hogy egy jó dokumentáció milyen nagy segítséget nyújthat azoknak, 
+akik ebben az iparágban dolgoznak. 
+%Ebben a részben lehet megadni a korábbi félévekben elvégzett munkát
+%is.  Így világosan elkülöníthető az aktuális félévtől.  Nem kell
+%hosszasan írni, de ne legyen felsorolás sem.  Egy bekezdésben kellene
+%itt leírni, hogy foglalkoztál-e már ezzel a témával, a tanszéken
+%dolgozott-e már valaki rajta.  Írd le azt is, hogy mit kaptál kézhez
+%hozzá segítségként.
 
 \newpage
 %==================================================================
@@ -548,10 +620,21 @@ beszámoló felépítésében nem érdemes eltérni a \emph{Bevezető --
 
 \bibitem{minikube} The Kubernetes Authors, \emph{Minikube documentation} \url{https://minikube.sigs.k8s.io/docs/} 
 
-\bibitem{redhat} Red Hat Inc, \emph{What's a service mesh?} \url{https://www.redhat.com/en/topics/microservices/what-is-a-service-mesh}
+\bibitem{redhat} Red Hat Inc, \emph{What's a service mesh?} 
+\\ \url{https://www.redhat.com/en/topics/microservices/what-is-a-service-mesh}
 
-\bibitem{eco} Umberto Eco, \emph{Hogyan írjunk szakdolgozatot?},
-  Kairosz Kiadó, 2000, ISBN: 9639137537.
+\bibitem{envoydoc} Envoy Project Authors, \emph{What is Envoy} 
+\\ \url{https://www.envoyproxy.io/docs/envoy/latest/intro/what_is_envoy}
+
+\bibitem{udpwiki} Wikipedia contributors, \emph{User Datagram Protocol}
+\\ \url{https://en.wikipedia.org/wiki/User_Datagram_Protocol}
+
+\bibitem{udsman}  Linux man-pages project, \emph{Unix Domain Socket}
+\\ \url{http://man7.org/linux/man-pages/man7/unix.7.html}
+
+\bibitem{iperf}  iPerf contributors, \emph{iPerf} \url{https://iperf.fr/}
+
+\bibitem{socat}  Gerhard Rieger, \emph{socat - Linux man page} \url{https://linux.die.net/man/1/socat}
 
 \bibitem{esterhazy} Esterházy Péter, \emph{Termelési-regény (Kisssregény),}
   Magvető Könyvkiadó, 2004, ISBN: 9631423948.
