@@ -174,7 +174,7 @@ A \textbf{b} megoldás annyiban egyszerűbb, hogy ott kettő konténert hozunk l
 az Envoy UDP csomagokat figyel és UDP csomagokat továbbít egy Alpine alapú konténernek, amiben fut egy
 socket parancs, ami képes UDP forgalmat UDS-re irányítani. A Pod a kubernetes legkisebb egysége,
 amelyekben konténereket lehet létrehozni. A konténereket érdemes úgy létrehozni, hogy
-konténerenként egy folyamat fusson benne. Az Alpine egy nagyon kicsi erőforrás igényű unix alapú
+konténerenként egy folyamat fusson benne. Az Alpine egy nagyon kicsi erőforrás igényű Unix alapú
 operációs rendszer.
 %<Mit kell tudni a feladatról, esetleges elméleti bevezető (nagyon
 %értelemszerű dolgokat ne definiáljunk, de jó, ha egy kicsit
@@ -204,8 +204,8 @@ elvet szem előtt tartani, hogy minden konténerben csak egyetlen folyamat fusso
 Minden konténer egyetlen operációs rendszer kernelt használ, ezért sokkal
 kevesebb erőforrást igényelnek, mint a rendes virtuális gépek. Viszont
 olyan hátulütője van ennek a tulajdonságának, hogy mondjuk a kiszolgáló
-egy linux operációs rendszer, akkor csak linux alapú konténerek hozhatóak
-létre, míg egy windows alapú kiszolgálónál csak windows alapú konténerek
+egy Linux operációs rendszer, akkor csak Linux alapú konténerek hozhatóak
+létre, míg egy Windows alapú kiszolgálónál csak Windows alapú konténerek
 születhetnek. Bár az utóbbi állítás a Hyper-V újítása révén már nem probléma
 érdekességként ajánlom a Microsoft dokumentációját erről ~\cite{linuxwindows}
 
@@ -438,8 +438,8 @@ megvalósítani ezeket a feladatokat, hogy dinamikusan tudjanak működni.
 \subsubsection{Lokális környezet}
 Minden konfigurációt és mérést Ubuntu 18.04 LTS (Long Term Support) környezetben
 végeztem el, annak érdekében, hogy konzisztensebb legyen a mérés a későbbiekben is,
-mert számomra egyszerűbb dockert és kubernetest használni linux alapú környezetben,
-mint windows-ban.
+mert számomra egyszerűbb dockert és kubernetest használni Linux alapú környezetben,
+mint Windows-ban.
 
 Ahhoz, hogy lokálisan, docker és kurbernetes nélkül tudjam használni az Envoy-t
 elsőnek is telepíteni kellett, amit a Lyft (akik az Envoy-t fejlesztik) által
@@ -490,19 +490,19 @@ mivel nálunk csak egy végpont lesz így ezt nem fogjuk tapasztalni.
 A kész konfigurációs fájl megtalálható lesz, a csatlakozó dokumentumok jegyzékénél.
 
 A konfigurációnkat már csak el kell fogadtatni az Envoy-al, hogy aszerint
-fogadja és továbbítsa a bejövő forgalmat. Ezt egy egész egyszerű pranacssal
-megtudjuk tenni: \textbf{envoy -c <konfig fájl elérési útvonala>}
+fogadja és továbbítsa a bejövő forgalmat. Ezt egy egész egyszerű paranccsal
+megtudjuk tenni: \textbf{envoy -c <s fájl elérési útvonala>}
 
 Ezután már nem marad más csak tesztelni, hogy milyen sávszélességgel képes
 továbbítani a csomagokat. Ennek a mérésére fogjuk használni az iPerf parancsot.
 
-Az iperf szervert a következő parancssal hozzuk létre.
+Az iperf szervert a következő paranccsal hozzuk létre.
 \begin{center}
   \begin {verbatim}
      iperf -s -p 5000 -u -U -e -i 1 --realtime
   \end{verbatim}
 \end{center}
-Ezzel megadtuk, hogy az 5000-s porton figyejen UDP forgalomra és csak egy UDP
+Ezzel megadtuk, hogy az 5000-s porton figyeljen UDP forgalomra és csak egy UDP
 szálon figyelünk. Az -e kapcsoló felel azért, hogy részletesebb adatokat kapjunk,
 mindezt másodpercekre bontva valós időben.
 
@@ -513,7 +513,7 @@ Ezután létre kell hozni az iperf klienst is, aki a forgalmat fogja biztosítan
   \end{verbatim}
 \end{center}
 UDP forgalmat továbbítunk a 120.0.0.1:4000-s címre, ugye ezen figyel az
-általunk beállított proxy. 72.3 Mbit/s sebességel 100 bájtos csomagokkal
+általunk beállított proxy. 72.3 Mbit/s sebességgel 100 byte-os csomagokkal
 másodpercenként küldjük a csomagokat 10 másodpercen keresztül.
 
 A teszt eredménye a szerveroldalon lesz látható.
@@ -531,21 +531,21 @@ mert, akkor nem fog minden funkcionalitása megfelelően működni. Telepítés
 folyamatát érdemes Docker által nyújtott dokumentáció alapján csinálni ~\cite{installdocker}.
 
 Ha már van Docker a gépünkön, akkor elsőnek le kell tölteni a megfelelő Envoy
-képfájlt a DockerHub-ról, amit a következő parancssal egyszerűen megtehetünk.
+képfájlt a DockerHub-ról, amit a következő paranccsal egyszerűen megtehetünk.
 \begin{center}
   \begin{verbatim}
     sudo docker pull envoyproxy/envoy:v1.14.1
     sudo docker images
   \end{verbatim}
 \end{center}
-Az első parancssal az áltunk kívánt képfájl és adott verziója fog letöltődni,
+Az első paranccsal az általunk kívánt képfájl és adott verziója fog letöltődni,
 míg a másodikkal ellenőrizni tudjuk, hogy megvan-e a képfájl.
 
 Ezután már csak a konfigurációs YAML fájlt kell megcsinálni, ami nagyon hasonló
 lesz, mint a lokálisnál, csak annyiban fog különbözni, hogy nem localhost-ról
 fogunk csomagokat kapni és nem is oda fogunk küldeni, hanem a docker konténer
 saját IP címére fogunk. Ez a cím nekem a \textbf{172.17.0.1}, de a \textbf{ip a}
-parancssal könnyen ellenőrizni tudjuk. De minden más marad a régiben.
+paranccsal könnyen ellenőrizni tudjuk. De minden más marad a régiben.
 
 Ahhoz, hogy ezt a konténert létre tudjuk hozni a következő parancsot kell kiadni:
 \begin{center}
@@ -561,15 +561,15 @@ Az elsősorban megadjuk, hogy milyen hálózatban legyen a konténerünk, aminek
 kiszolgáló hálózata lett beállítva és adtunk neki egy kicsit jobban megjegyezhető
 nevet, mint amit egyébként a docker adna neki. Az utána következő 2 sorban azt
 a két portot adjuk meg, amelyeken keresztül a konténerünk elérhetővé válik. Utána
-jön az izgalmasabb rész, ahol az általunk írt konfigurációs fájl tartalmatá betöltjük a
-kontérben lévőbe. Ezt azért kell megcsinálni, mert az alapképfájlban van egy
+jön az izgalmasabb rész, ahol az általunk írt konfigurációs fájl tartalmát betöltjük a
+konténerben lévőbe. Ezt azért kell megcsinálni, mert az alapképfájlban van egy
 alapkonfiguráció, ami jelenleg számunkra nem kell szóval felül kell írni.
 Másrészt, azért is szükség van arra, hogy így megadjuk, mert így nem kell a
 konténerbe belépni, majd ott megadni a fájlt, ami esetleg több ilyen konténer
 létrehozásánál elég fárasztó lehet. Az utolsó sornál pedig csak a képfájl nevét
 adjuk meg elérhetőségnek.
 
-A sebesség mérése csak annyiban fog különbözi az előzőjhöz képest, hogy nem a
+A sebesség mérése csak annyiban fog különbözni az előzőhöz képest, hogy nem a
 127.0.0.1:4000-s címre fogunk csomagokat küldeni, hanem a 171.17.0.1:4000 címre.\\
 
 Ehhez a részhez tartozó konfigurációs fájl is megtalálható a csatlakozó
@@ -577,7 +577,7 @@ dokumentumok jegyzékében.
 
 Itt is meg kell csinálni a sebességmérést.
 \subsubsection{Kubernetes környezet}
-Ahhoz, hogy kubernetes-ben is létretudjuk hozni ugyan ezt a környezetet, ahhoz kell
+Ahhoz, hogy kubernetes-ben is létre tudjuk hozni ugyan ezt a környezetet, ahhoz kell
 egy olyan program amellyel virtuális létre tudunk hozni egy dolgozó node-t.
 Erre tökéletes lesz a Minikube, de ahhoz hogy ezt tudjuk használni kell, hogy
 a számítógépünk képes legyen virtualizációra. Virtualizálni a legtöbb
@@ -591,7 +591,7 @@ segítségével ~\cite{installkubectl}
 
 Mivel most nem egy nagy erőforrás igényű alkalmazást fogunk létrehozni nem
 kell a virtuális gép paramétereit beállítani és elég csak szimplán indítani a
-Minikube-t a következő parancssal.
+Minikube-t a következő paranccsal.
 \begin{verbatim}
   minikube start
 \end{verbatim}
@@ -621,7 +621,7 @@ Most létre kell hozunk a YAML fájlt, ami nagyon hasonlítani fog az előzőekh
 viszont annyiban el fog térni, hogy itt már bármilyen címről érkező UDP csomagot
 el fogunk fogadni, ha az 5000-s portról érkezik. Viszont küldeni egy címre fogunk
 csak, ami az én esetemben a VirtualBox által létrehozott lesz, ami 192.168.99.1.
-Ezt könnyen kideríthető az \textbf{ip a} parancssal.
+Ezt könnyen kideríthető az \textbf{ip a} paranccsal.
 
 Miután mindez megvan, már csak létre kell hozni az általunk megadott képfájlt és
 azt feltölteni a DockerHub-ra, ahonnét majd később le fogjuk tudni tölteni.
@@ -632,7 +632,7 @@ azt feltölteni a DockerHub-ra, ahonnét majd később le fogjuk tudni tölteni.
 \end{verbatim}
 Most egy Deploymentet fogunk létrehozni, amire azért van szükség, mert így
 a Pod véletlenszerű törlődése esetén rögtön létre fog jönni egy ugyan olyan
-funkcionalítású, de más IP-vel rendelkező Pod. De ugyanakkor később, ha több
+funkcionalitású, de más IP-vel rendelkező Pod. De ugyanakkor később, ha több
 ilyen Pod-ra lenne szükségünk, akkor a számukat könnyen fel lehet skálázni
 annak megfelelően, hogy mennyi terhelése érkezik a szolgáltatásunkba.
 A legfontosabb részét bemutatom és részletesen ismertetem, de ez a fájl is
@@ -651,7 +651,7 @@ Itt állítjuk be, hogy a Podunk milyen névvel jöjjön létre és, hogy az
 Fontos még az, hogy a konténernek egyezzen a nyitott portja a konfigurációs
 fájlban a listener-nél megadott porttal, mert így lesz képes a csomag betalálni
 hozzá. A kimenő forgalom számára, azért nem kell ilyen pontosan specifikálni,
-mert a Pod teljes mértékben képes kilátni a klaszteből és a VirtualBox
+mert a Pod teljes mértékben képes kilátni a klaszterből és a VirtualBox
 csatlakozási pontját megtalálni.
 % <Én magam (nem a társam) a félév során következőket olvastam el /
 % programoztam / készítettem el / teszteltem / dokumentáltam / néztem át
