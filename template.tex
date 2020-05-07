@@ -35,6 +35,9 @@
 % magyar helyesírás ellenőrzéshez (ispell) és elválasztáshoz
 \selectlanguage{magyar}
 
+\usepackage{xcolor}
+\usepackage{listings}
+
 %=================================================================
 % direkt ékezetes karakter beírás támogatás
 %-------------------------------------------
@@ -497,21 +500,17 @@ Ezután már nem marad más csak tesztelni, hogy milyen sávszélességgel képe
 továbbítani a csomagokat. Ennek a mérésére fogjuk használni az iPerf parancsot.
 
 Az iperf szervert a következő paranccsal hozzuk létre.
-\begin{center}
-  \begin {verbatim}
-     iperf -s -p 5000 -u -U -e -i 1 --realtime
-  \end{verbatim}
-\end{center}
+\begin{lstlisting}[language=bash]
+   iperf -s -p 5000 -u -U -e -i 1 --realtime
+\end{lstlisting}
 Ezzel megadtuk, hogy az 5000-s porton figyeljen UDP forgalomra és csak egy UDP
 szálon figyelünk. Az -e kapcsoló felel azért, hogy részletesebb adatokat kapjunk,
 mindezt másodpercekre bontva valós időben.
 
 Ezután létre kell hozni az iperf klienst is, aki a forgalmat fogja biztosítani.
-\begin{center}
-  \begin{verbatim}
-    iperf -u -c 127.0.0.1 -p 4000 -b 72250000 -l 100 -i 1 -t 10
-  \end{verbatim}
-\end{center}
+\begin{lstlisting}[language=bash]
+  iperf -u -c 127.0.0.1 -p 4000 -b 72250000 -l 100 -i 1 -t 10
+\end{lstlisting}
 UDP forgalmat továbbítunk a 120.0.0.1:4000-s címre, ugye ezen figyel az
 általunk beállított proxy. 72.3 Mbit/s sebességgel 100 byte-os csomagokkal
 másodpercenként küldjük a csomagokat 10 másodpercen keresztül.
@@ -532,12 +531,10 @@ folyamatát érdemes Docker által nyújtott dokumentáció alapján csinálni ~
 
 Ha már van Docker a gépünkön, akkor elsőnek le kell tölteni a megfelelő Envoy
 képfájlt a DockerHub-ról, amit a következő paranccsal egyszerűen megtehetünk.
-\begin{center}
-  \begin{verbatim}
-    sudo docker pull envoyproxy/envoy:v1.14.1
-    sudo docker images
-  \end{verbatim}
-\end{center}
+\begin{lstlisting}[language=bash]
+  sudo docker pull envoyproxy/envoy:v1.14.1
+  sudo docker images
+\end{lstlisting}
 Az első paranccsal az általunk kívánt képfájl és adott verziója fog letöltődni,
 míg a másodikkal ellenőrizni tudjuk, hogy megvan-e a képfájl.
 
@@ -548,15 +545,13 @@ saját IP címére fogunk. Ez a cím nekem a \textbf{172.17.0.1}, de a \textbf{i
 paranccsal könnyen ellenőrizni tudjuk. De minden más marad a régiben.
 
 Ahhoz, hogy ezt a konténert létre tudjuk hozni a következő parancsot kell kiadni:
-\begin{center}
-  \begin{verbatim}
-    docker run --net=host --name=proxy-udp -d \
-    > -p 9901:9901 \
-    > -p 4000:4000 \
-    > -v $(pwd)/udpDocker.yaml:/etc/envoy/envoy.yaml \
-    > envoyproxy/envoy:v1.14.1
-  \end{verbatim}
-\end{center}
+\begin{lstlisting}[language=bash]
+  docker run --net=host --name=proxy-udp -d \
+  > -p 9901:9901 \
+  > -p 4000:4000 \
+  > -v $(pwd)/udpDocker.yaml:/etc/envoy/envoy.yaml \
+  > envoyproxy/envoy:v1.14.1
+\end{lstlisting}
 Az elsősorban megadjuk, hogy milyen hálózatban legyen a konténerünk, aminek most a
 kiszolgáló hálózata lett beállítva és adtunk neki egy kicsit jobban megjegyezhető
 nevet, mint amit egyébként a docker adna neki. Az utána következő 2 sorban azt
@@ -592,26 +587,26 @@ segítségével ~\cite{installkubectl}
 Mivel most nem egy nagy erőforrás igényű alkalmazást fogunk létrehozni nem
 kell a virtuális gép paramétereit beállítani és elég csak szimplán indítani a
 Minikube-t a következő paranccsal.
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
   minikube start
-\end{verbatim}
+\end{lstlisting}
 Így 2 CPU maggal, 2 GB memóriával és 20 GB tárhellyel fog létrejönni. Szükséges
 megjegyeznünk a későbbiekhez az ip címét.
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
   minikube ip
   192.168.99.100
-\end{verbatim}
+\end{lstlisting}
 Ezután létre kell hoznunk a saját Envoy képfájlunkat, mert ha az alap
 fájlból szeretnénk létrehozni a pod-ot, akkor nem fogjuk tudni úgy
 konfigurálni, ahogyan azt mi szeretnénk. Ahhoz, hogy ezt megtudjuk csinálni
 írnunk kell egy \textbf{Dockerfile}-t, amiben specifikáljuk, hogy mi legyen az
 alap képfájl, milyen konfiguráció legyen beállítva és, hogy milyen parancs
 fusson le a konténer létrejöttekor. Így néz ki a Dockerfile:
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
   FROM envoyproxy/envoy:v1.14.1
   COPY envoy_upd.yaml /etc/envoy/envoy.yaml
   RUN apt-get update && apt-get install -y tcpdump && apt-get install -y net-tools
-\end{verbatim}
+\end{lstlisting}
 Mint látszik, az első sorban az alap képfájlt adjuk, meg míg a másodikban a
 saját konfigurációnkat bemásoljuk, abba a fájlba, amiből dolgozni fog az Envoy,
 mihelyt elindul. Az utolsó sor már csak, azért kell, hogy esetleges hibákat
@@ -625,11 +620,11 @@ Ezt könnyen kideríthető az \textbf{ip a} paranccsal.
 
 Miután mindez megvan, már csak létre kell hozni az általunk megadott képfájlt és
 azt feltölteni a DockerHub-ra, ahonnét majd később le fogjuk tudni tölteni.
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
   sudo docker build .
   sudo docker tag <image_id> vidarhun/kubeudpenvoy:v1
   sudo docker push vidarhun/kubeudpenvoy:v1
-\end{verbatim}
+\end{lstlisting}
 Most egy Deploymentet fogunk létrehozni, amire azért van szükség, mert így
 a Pod véletlenszerű törlődése esetén rögtön létre fog jönni egy ugyan olyan
 funkcionalitású, de más IP-vel rendelkező Pod. De ugyanakkor később, ha több
@@ -637,7 +632,7 @@ ilyen Pod-ra lenne szükségünk, akkor a számukat könnyen fel lehet skálázn
 annak megfelelően, hogy mennyi terhelése érkezik a szolgáltatásunkba.
 A legfontosabb részét bemutatom és részletesen ismertetem, de ez a fájl is
 megtalálható lesz csatlakozó dokumentumok jegyzékében.
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
   spec:
     containers:
     - name: envoy-container
@@ -645,7 +640,7 @@ megtalálható lesz csatlakozó dokumentumok jegyzékében.
       ports:
         - containerPort: 5000
           protocol: UDP
-\end{verbatim}
+\end{lstlisting}
 Itt állítjuk be, hogy a Podunk milyen névvel jöjjön létre és, hogy az
 általunk létrehozott és felöltött képfájl alapján jöjjön létre.
 Fontos még az, hogy a konténernek egyezzen a nyitott portja a konfigurációs
@@ -654,7 +649,77 @@ hozzá. A kimenő forgalom számára, azért nem kell ilyen pontosan specifikál
 mert a Pod teljes mértékben képes kilátni a klaszterből és a VirtualBox
 csatlakozási pontját megtalálni.
 
-valamivalamivalami 
+Ezt most már csak a kubernetessel kell elfogadtatni, ami nagyon egyszerűen
+megtehető az alábbi paranccsal.
+\begin{lstlisting}[language=bash]
+  kubectl apply -f <fajl eleresi utvonala>
+\end{lstlisting}
+Miután ezt megtettük meg tudjuk nézni, hogy milyen elemek jöttek létre a
+mi kis hálózatunkban az alábbi paranccsal.
+\begin{lstlisting}[language=bash]
+  kubectl get all
+  NAME                                    READY   STATUS    RESTARTS   AGE
+  pod/envoy-deployment-767c686bcc-rrn2k   1/1     Running   2          10d
+
+  NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+  service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   12d
+
+  NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+  deployment.apps/envoy-deployment   1/1     1            1           10d
+
+  NAME                                          DESIRED   CURRENT   READY   AGE
+  replicaset.apps/envoy-deployment-767c686bcc   1         1         1       10d
+\end{lstlisting}
+Ebből jól látszik, hogy létrejött egyetlen egy darab Pod, ami a mi konfigurációnkat
+tartalmazza és az is, hogy van neki egy kis sorszáma, ami jelzi is nekünk, hogy
+ez nem egy nagyon permanens elem, mert minden egyes létrejöttekor más számot fog
+kapni.
+
+De ezen felül még látszik, hogy van egy darab deployment-ünk és egy hozzá
+tartozó replicaset. A replicaset azt mutatja nekünk, hogy hát kubernetes elem
+jött létre a deployment futtatása során és abból, hány áll készen használatra.
+Most egy darabot mutat, mert a méréshez elég egy is.
+
+Viszont a proxy még nem érhető el a klaszteren kívül és így nem is tudunk
+számára semmilyen forgalmat küldeni, mert nem látjuk. Ezt azzal küszöböljük ki,
+hogy az imént létrehozott deployment-et ki exponáljuk egy porton keresztül a külvilág
+számára.
+
+Ezt többféle módon is megtehetjük, de a célnak megfelel a NodePort használata is.
+Az elképzelése ennek az lesz, hogy van a Node és azon kinyitunk egy portot, ami
+össze van kapcsolva a klaszterrel. Ez azt eredményezi, hogy ami adat a Node-hoz
+érkezik az mind az adott klaszterbe lesz irányítva és azt is, hogy ami a klaszterből
+ki jön az mint ehhez a porthoz lesz irányítva. A következő utasítással ez
+egyszerűen megtehető.
+\begin{lstlisting}[language=bash]
+  kubectl expose deployment envoy-deployment --type=NodePort
+  --protocol=UDP --port=32000 --target-port=5000
+\end{lstlisting}
+Így megadtuk az utasítás számára azt, hogy mely deployment-hez kell egy
+NodePort-t nyitnia és azt is, hogy az ezen érkező csomagoknak UDP protokollal
+kell rendelkezniük. A --port részt nem kötelező megadni, ez csak arra az esetre
+jó, ha van egy másik klaszterünk vagy szolgáltatásunk, amelynek el kell érnia
+az Envoy-t. Ezzel szemben a --target-port értékét muszáj arra a számra állítani,
+amin a Pod figyel, mert másképp nem fog az adat bejutni.
+
+Ezután a szolgáltatás létrejötte ellenőrizhető a \textbf{kubectl get services}
+utasítással, ahol látni fogjuk a klaszer címét és a hozzá tartozó portokat.
+Itt fontos megjegyezni, hogy 2 portot fogunk ott látni, egyszer a 32000-t és
+egy a kubernetes által generált portot. Szóval, ha klaszteren belül
+kell nekünk elérni a proxy-t, akkor a 32000-s kell, ha kívülről, akkor a
+generált.
+
+Most már csak azt kell kideríteni, hogy milyen címre kell küldeni a csomagokat.
+Ez egy egyszerű minikube utasítással megoldható.
+\begin{lstlisting}[language=bash]
+  minikube service envoy-deployment
+  |-----------|------------------|-------------|-----------------------------|
+  | NAMESPACE |       NAME       | TARGET PORT |             URL             |
+  |-----------|------------------|-------------|-----------------------------|
+  | default   | envoy-deployment |       32000 | http://192.168.99.100:32315 |
+  |-----------|------------------|-------------|-----------------------------|
+\end{lstlisting}
+Az URL rész alatti címre kell címezni a csomagokat.
 % <Én magam (nem a társam) a félév során következőket olvastam el /
 % programoztam / készítettem el / teszteltem / dokumentáltam / néztem át
 % / tanultam meg, stb.  Tételes leírása és felsorolása mindannak, ami a
@@ -666,7 +731,6 @@ valamivalamivalami
 %
 % Ebben a részben a hallgató az általa elvégzett munkát mutatja
 % be. Hangsúlyosan a saját munka bemutatása a cél, hiszen a hallgató
-% ezzel igazolja a témavezető és a tárgyfelelős irányába, hogy --
 % folyamatosan fejlődve és egyre több és jobb munkát végezve -- a
 % szakdolgozatát/diplomadolgozatát képes lesz megírni.  A beszámoló nem
 % munkanapló, nem arra vagyunk kíváncsiak, hogy mit mikor csinált a
@@ -680,6 +744,7 @@ valamivalamivalami
 % követelmények betartására.  (Tehát nem kell többes számként hivatkozni
 % saját magunkra, kerülni kell a furcsa megfogalmazást, passzív és egyéb
 % kifacsart mondatszerkezeteket.  Az egy szót határozatlan névelőként
+% ezzel igazolja a témavezető és a tárgyfelelős irányába, hogy --
 % történő használatakor ne írjuk ki számként.)
 %
 %
@@ -925,7 +990,7 @@ helyzetben elfogadható!
 \label{sec:csat-irod}
 
 Lokális környezet konfigurációs fájlja.
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
   admin:
     access_log_path: /tmp/admin_access.log
     address:
@@ -962,10 +1027,10 @@ Lokális környezet konfigurációs fájlja.
                 socket_address:
                   address: 127.0.0.1
                   port_value: 5000
-\end{verbatim}
+\end{lstlisting}
 
 Dockeres környezet konfigurációs fájlja.
-\begin{verbatim}
+\begin{lstlisting}[language=bash]
   admin:
     access_log_path: /tmp/admin_access.log
     address:
@@ -1002,8 +1067,33 @@ Dockeres környezet konfigurációs fájlja.
                 socket_address:
                   address: 172.17.0.1
                   port_value: 5000
-\end{verbatim}
+\end{lstlisting}
 
+Kubernetes részben tárgyalt Deployment fájl.
+\begin{lstlisting}[language=bash]
+  apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+  kind: Deployment
+  metadata:
+    name: envoy-deployment
+    labels:
+      app: envoy
+  spec:
+    selector:
+      matchLabels:
+        app: envoy
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          app: envoy
+      spec:
+        containers:
+        - name: envoy-container
+          image: vidarhun/kubeupdenvoy:v1.0
+          ports:
+            - containerPort: 5000
+              protocol: UDP
+\end{lstlisting}
 <A munka ezen beszámolóba be nem fért eredményeinek (például a forrás
 fájlok, mindenképpen csatolni akart forráskód részlet, felhasználói
 leírások, programozói leírások (API), stb.) megnevezése,

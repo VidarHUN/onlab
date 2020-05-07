@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Ezt ne piszkáld!!!!
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\pagestyle{myheadings} % legyen fejléc 
+\pagestyle{myheadings} % legyen fejléc
 
 \newcommand{\onlabcim}{
   \begin{center}
@@ -9,7 +9,7 @@
 
     \small{Távközlési és Médiainformatikai Tanszék}
   \end{center}
-} 
+}
 
 % Argumentumok: #1=Név, #2=Neptunkód, #3=szakirány, #4=email, #5 konzulens-1, #6 konzulens-1-email, #7 konzulens-2, #8 konzulens-2-email
 \newcommand{\onlabszerzo}[8]{
@@ -22,20 +22,25 @@
   ágazat:     & \textbf{#3}  \\
   konzulens: & \textbf{#5}  \\
              & \href{mailto:#6}{\textbf{#6}} \\
-  konzulens: & \textbf{#7}  \\
-             & \href{mailto:#8}{\textbf{#8}}  \\
-  
+
   \end{tabular}
 \end{center}
 
 }
 
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  showstringspaces=false,
+  commentstyle=\color{red},
+  keywordstyle=\color{blue}
+}
+
 % % Argumentumok: #1=Név, #2=email
 % \newcommand{\konzulens}[2]{
-%   \noindent\textbf{Konzulens:} #1 
+%   \noindent\textbf{Konzulens:} #1
 %   \newline\emph{Email cím:}\/ \href{mailto:#2}{#2}
 %   \newline
-% 
+%
 % }
 
 % Argumentumok: #1=Tanév (xxxx/xx alakban, #2=félév (pont nélkül)
@@ -44,15 +49,15 @@
   \newline
 }
 
-% Argumentumok: #1=téma címe 
+% Argumentumok: #1=téma címe
 \newcommand{\feladatcim}[1]{
   \large\noindent\textbf{Téma címe: #1}
   \bigskip
 }
 
-% Argumentumok: #1=téma részletei 
+% Argumentumok: #1=téma részletei
 \newcommand{\feladatmaga}[1]{
-\large\noindent\textbf{Feladat:} 
+\large\noindent\textbf{Feladat:}
   \newline
  #1
  \newline
@@ -71,7 +76,7 @@
 \let\endthebibliography=\endlist%
 
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "template"
-%%% End: 
+%%% End:
