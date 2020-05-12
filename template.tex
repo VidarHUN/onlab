@@ -268,10 +268,33 @@ bemutatni.
 	\item Pod -> Szolgáltatás adattovábbítás
 	\item Internet -> Szolgáltatás adattovábbítás
 \end{enumerate}
-Ami most számunkra fontosabb lesz az az első kettő pont.
+Ami most számunkra fontosabb lesz az az első kettő pont. \\ \\
+\textbf{Konténer -> Konténer kommunikáció}
 
-Itt kicsit jobban fejtsd ki ez alapján: \\
-\url{https://sookocheff.com/post/kubernetes/understanding-kubernetes-networking-model/}
+Tudni kell, hogy a podok egy közös névtérben futnak és minden podnak lehet
+saját egydülálló névtere. Ez azért egyszerűsíti meg a kommunikációt a podon
+belüli konténerek számára, mert így minden konténernek ugyan az az IP címe lesz
+és csak a portfoglalások fogják őket megkülönböztetni. Ez nem csak, azért nagyon
+jó dolog számunkra, mert könnyebb hivatkozni külsőleg ezeket a konténereket, hanem
+egymás között localhost-on tudnak kommunikálni adott portszámokkal. Így maga a
+kommunikáció is egyszerűbb lesz közöttük, mert a bennük futó olyan folyamatoknak,
+amiknek szükségük van más konténerekkel való kapcsolatra nem kell konkrét címeket
+tudni csak portszámokat, de a sebességre is pozitív hatással van. \\ \\
+\textbf{Pod -> Pod kommunikáció}
+
+A konténerekkel ellentétben egyéni IP címmel rendelkezik minden egyes Pod a hálózatunkban.
+De ez sajnos még nem elég annak érdekében, hogy könnyen megvalósítható legyen közöttük
+az adattovábbítás. Ehhez ugyan is a gyökér névteret fogják használni, amiből egy
+van Node-ként. Ez a névtér rendelkezik minden Pod számára egy Virtuális Ethernet
+Eszköz interfészel és ezek össze vannak úgymond kötve minden egyes Pod eth0
+interfészével. De ez még nem fogja megoldani a továbbítást. Ahhoz még egyetlen
+elemre van szükségünk, mégpedig egy hídra. Ez a híd lesz, az ami a virtuális
+ethernet interfészeket összeköti és továbbítja a csomagokat. De felmerül a kérdés,
+hogy hogyan találja meg a célt ez híd. Erre használja az ARP (Address Resolution Protocol)
+protokollt, ami IP cím alapján képes megtalálni, hogy milyen MAC (Media Access Control address)
+címre kell továbbítania a forgalmat. Ez a cím egyedileg azonosítja az interfészeket.
+
+További érdekes információk találhatóak Kevin Sookocheff cikkében ~\cite{kevin}
 
 \subsubsection{Szolgáltatásháló}
 A szolgáltatásháló, olyan mint mondjuk az Istio egy módja annak, hogy az
@@ -509,15 +532,16 @@ mindezt másodpercekre bontva valós időben.
 
 Ezután létre kell hozni az iperf klienst is, aki a forgalmat fogja biztosítani.
 \begin{lstlisting}[language=bash]
-  iperf -u -c 127.0.0.1 -p 4000 -b 72250000 -l 100 -i 1 -t 10
+  iperf -u -c 127.0.0.1 -p 4000 -b 60000000 -l 100 -i 1 -t 10
 \end{lstlisting}
 UDP forgalmat továbbítunk a 120.0.0.1:4000-s címre, ugye ezen figyel az
 általunk beállított proxy. 72.3 Mbit/s sebességgel 100 byte-os csomagokkal
 másodpercenként küldjük a csomagokat 10 másodpercen keresztül.
 
-A teszt eredménye a szerveroldalon lesz látható.
+Így láthatjuk, hogy milyen sebességel képes képes lokálisan adatot továbbítani.
+Részletesebben az összefoglalás részben lesz szó róla, ahol diagramokkal
+szeretném bemutatni az elért eredményeket különböző környezetekben.
 
-Ez még kellene.
 \subsubsection{Dockeres környezet}
 A dockeres megvalósításnál is igazából hasonlóan fogunk eljárni, mint lokálisan, de
 csak annyi fog különbözni, hogy nem a mi számítógépünk fog futni, hanem a konténerben.
@@ -570,7 +594,7 @@ A sebesség mérése csak annyiban fog különbözni az előzőhöz képest, hog
 Ehhez a részhez tartozó konfigurációs fájl is megtalálható a csatlakozó
 dokumentumok jegyzékében.
 
-Itt is meg kell csinálni a sebességmérést.
+Mérési adatokat és azok összehasonlítását az összefoglalás részben található.
 \subsubsection{Kubernetes környezet}
 Ahhoz, hogy kubernetes-ben is létre tudjuk hozni ugyan ezt a környezetet, ahhoz kell
 egy olyan program amellyel virtuális létre tudunk hozni egy dolgozó node-t.
@@ -692,8 +716,7 @@ Az elképzelése ennek az lesz, hogy van a Node és azon kinyitunk egy portot, a
 ki jön az mint ehhez a porthoz lesz irányítva. A következő utasítással ez
 egyszerűen megtehető.
 \begin{lstlisting}[language=bash]
-  kubectl expose deployment envoy-deployment --type=NodePort
-  --protocol=UDP --port=32000 --target-port=5000
+  kubectl expose deployment envoy-deployment --type=NodePort --protocol=UDP --port=32000 --target-port=5000
 \end{lstlisting}
 Így megadtuk az utasítás számára azt, hogy mely deployment-hez kell egy
 NodePort-t nyitnia és azt is, hogy az ezen érkező csomagoknak UDP protokollal
@@ -720,6 +743,8 @@ Ez egy egyszerű minikube utasítással megoldható.
   |-----------|------------------|-------------|-----------------------------|
 \end{lstlisting}
 Az URL rész alatti címre kell címezni a csomagokat.
+
+Kell az ábra!!! 
 % <Én magam (nem a társam) a félév során következőket olvastam el /
 % programoztam / készítettem el / teszteltem / dokumentáltam / néztem át
 % / tanultam meg, stb.  Tételes leírása és felsorolása mindannak, ami a
@@ -908,6 +933,9 @@ beszámoló felépítésében nem érdemes eltérni a \emph{Bevezető --
   from: \\ \url{https://en.wikipedia.org/wiki/Docker_(software)}
 
 \bibitem{minikube} The Kubernetes Authors, \emph{Minikube documentation} \url{https://minikube.sigs.k8s.io/docs/}
+
+\bibitem{kevin} Kevin Sookocheff, \emph{A Guide to the Kubernetes Networking Model}
+\\ \url{https://sookocheff.com/post/kubernetes/understanding-kubernetes-networking-model/}
 
 \bibitem{redhat} Red Hat Inc, \emph{What's a service mesh?}
 \\ \url{https://www.redhat.com/en/topics/microservices/what-is-a-service-mesh}
